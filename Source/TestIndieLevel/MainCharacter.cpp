@@ -11,7 +11,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystem/GA_Crouch.h"
 #include "AbilitySystem/GA_DoubleJump.h"
+#include "AbilitySystem/GA_Uncrouch.h"
 #include "AbilitySystem/Effects/GE_Cost_NormalAbility.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -284,6 +286,12 @@ void AMainCharacter::ActivateAbilityForInput(FGameplayTag InputTag){
 			if(AbilityClass->IsChildOf(UGA_Jump::StaticClass())){
 				if(GetCharacterMovement()->IsFalling()){
 					AbilitySystemComponent->TryActivateAbilityByClass(UGA_DoubleJump::StaticClass());
+					return;
+				}
+			}
+			if(AbilityClass->IsChildOf(UGA_Crouch::StaticClass())){
+				if(bIsOnCrouch){
+					AbilitySystemComponent->TryActivateAbilityByClass(UGA_Uncrouch::StaticClass());
 					return;
 				}
 			}

@@ -4,6 +4,7 @@
 #include "TestIndieLevel/BaseEnemy.h"
 
 EBTNodeResult::Type UBTT_EnemyHit::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
+	BehaviorTreeComp = &OwnerComp;
 	AEnemyAIController* EnemyAIController = Cast<AEnemyAIController>(OwnerComp.GetAIOwner());
 	if(EnemyAIController){
 		ABaseEnemy* SelfPawn = Cast<ABaseEnemy>(EnemyAIController->GetPawn());
@@ -21,7 +22,7 @@ EBTNodeResult::Type UBTT_EnemyHit::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 }
 
 void UBTT_EnemyHit::OnMontageCompleted(UAnimMontage* Montage, bool bInterrupted){
-	if(BehaviorTreeComp){
+	if(BehaviorTreeComp && Montage == HitMontage){
 		AEnemyAIController* EnemyAIController = Cast<AEnemyAIController>(BehaviorTreeComp->GetAIOwner());
 		if(EnemyAIController){
 			EnemyAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("WasHitted"), false);
