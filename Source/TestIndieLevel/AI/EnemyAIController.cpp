@@ -39,6 +39,7 @@ void AEnemyAIController::Tick(float DeltaTime){
 }
 
 void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus){
+	/* If the sight got an actor, set it as the target */
 	if(Actor && Actor->IsA(AMainCharacter::StaticClass())){
 		SetTargetInBlackboard(Actor);
 		return;

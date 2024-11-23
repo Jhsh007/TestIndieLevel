@@ -11,6 +11,9 @@ EBTNodeResult::Type UBTT_EnemyAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		if(SelfPawn){
 			UAbilitySystemComponent* EnemyASC = SelfPawn->GetAbilitySystemComponent();
 			if(EnemyASC && AttackAbilityClass){
+				/* If the data is correct activate attack ability
+				 * and stop the AI process(follow target to attack it) because it's now in the process of attack
+				 */
 				if(EnemyASC->TryActivateAbilityByClass(AttackAbilityClass)){
 					EnemyAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), false);
 					return EBTNodeResult::Succeeded;

@@ -20,6 +20,7 @@ void UGA_Crouch::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 		if(Character){
 			if(!Character->GetCharacterMovement()->IsFalling()){
 				if(CommitAbility(Handle, ActorInfo, ActivationInfo)){
+					/* If the data is correct begin the crouch process(camera and mesh handling) */
 					Character->BeginCrouch();
 				}
 			}
@@ -33,6 +34,7 @@ void UGA_Crouch::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 	if(ActorInfo->OwnerActor.IsValid()){
 		AMainCharacter* Character = Cast<AMainCharacter>(ActorInfo->OwnerActor);
 		if(Character){
+			/* If the data is correct end the crouch process(camera and mesh handling) */
 			Character->EndCrouch();
 		}
 	}

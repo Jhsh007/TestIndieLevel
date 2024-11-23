@@ -46,17 +46,18 @@ AMainCharacter::AMainCharacter(){
 void AMainCharacter::OnHealthChanged(const FOnAttributeChangeData& OnAttributeChangeData){
 	UTIL_AttributeSet* TIl_AttributeSet = Cast<UTIL_AttributeSet>(AttributeSet);
 	if(TIl_AttributeSet){
-		TIl_AttributeSet->OnHealthChanged.Broadcast(OnAttributeChangeData.NewValue, TIl_AttributeSet->GetMaxHealth());
+		TIl_AttributeSet->OnHealthChanged.Broadcast(OnAttributeChangeData.NewValue, TIl_AttributeSet->GetMaxHealth());//Inform a health change
 	}
 }
 
 void AMainCharacter::OnStaminaChanged(const FOnAttributeChangeData& OnAttributeChangeData){
 	UTIL_AttributeSet* TIl_AttributeSet = Cast<UTIL_AttributeSet>(AttributeSet);
 	if(TIl_AttributeSet){
-		TIl_AttributeSet->OnStaminaChanged.Broadcast(OnAttributeChangeData.NewValue, TIl_AttributeSet->GetMaxStamina());
+		TIl_AttributeSet->OnStaminaChanged.Broadcast(OnAttributeChangeData.NewValue, TIl_AttributeSet->GetMaxStamina());//Inform a stamina change
 	}
 }
 
+/* Initialize ASC, add the startup abilities and bind delegates to listen to attribute changes */
 void AMainCharacter::InitializeAbilitySystem(){
 	if(AbilitySystemComponent){
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
@@ -85,6 +86,7 @@ void AMainCharacter::BeginPlay(){
 void AMainCharacter::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 
+	/* Handle the camera and the static mesh location interpolation when a crouch/uncrouch happen */
 	if(bInterpCamera){
 		InterpElapsedTime += DeltaTime;
 		const float Alpha = FMath::Clamp(InterpElapsedTime/InterpDuration, 0.0f, 1.0f);
@@ -174,6 +176,7 @@ void AMainCharacter::LookUp(float Value){
 	AddControllerPitchInput(Value);
 }
 
+/* All the actions call ActivateAbilityForInput to check the ability related with the tag on that action */
 void AMainCharacter::Action1(){
 	if(!AbilitySystemComponent) return;
 	
@@ -209,27 +212,26 @@ void AMainCharacter::Action5(){
 	ActivateAbilityForInput(InputTag);
 }
 
+/* Send a Land Event */
 void AMainCharacter::Landed(const FHitResult& Hit){
 	Super::Landed(Hit);
 
 	if(AbilitySystemComponent){
-		UE_LOG(LogTemp, Warning, TEXT("Firing Event.Land"));
 		const FGameplayTag EvenTag = FGameplayTag::RequestGameplayTag(FName("Event.Land"));
 		FGameplayEventData EventData;
 		EventData.EventTag = EvenTag;
 		EventData.Instigator = this;
 		AbilitySystemComponent->HandleGameplayEvent(EvenTag, &EventData);
-	}else{
-		UE_LOG(LogTemp, Warning, TEXT("Fail ASC"));
 	}
 }
 
+/* Start a crouch(camera/mesh) interpolation */
 void AMainCharacter::BeginCrouch(){
 	bInterpCamera = true;
 	bIsOnCrouch = true;
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;
 }
-
+/* End a crouch(camera/mesh) interpolation */
 void AMainCharacter::EndCrouch(){
 	bInterpCamera = true;
 	bIsOnCrouch = false;
@@ -246,13 +248,14 @@ void AMainCharacter::ApplyAttack(){
 	FHitResult SphereHitResult;
 	UKismetSystemLibrary::SphereTraceSingleForObjects(this, HandLocation, HandLocation, 20.f, ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, SphereHitResult, true);
 
+	/* Use a sphere trace to check in the hand location to check if the enemy was hit */
 	if(SphereHitResult.bBlockingHit){
 		AActor* HitActor = SphereHitResult.GetActor();
 		if(HitActor){
 			UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 			if(ASC && DamageEffectClass){
 				const FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("GameplayCue.Hit"));
-				
+				/* if the data is correct make a damage effect and send the cue to be handled in the enemy */
 				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(DamageEffectClass, 1, ASC->MakeEffectContext());
 				ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 				ASC->ExecuteGameplayCue(HitTag);
@@ -263,6 +266,7 @@ void AMainCharacter::ApplyAttack(){
 
 void AMainCharacter::BeginCounter(){
 	bIsDefending = false;
+	/* Play the CounterMontage and activate the SuccessCounter event to be handled in the enemy */
 	if(AbilitySystemComponent && CounterMontage){
 		PlayAnimMontage(CounterMontage, 1, TEXT("Counter"));
 		

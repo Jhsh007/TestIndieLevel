@@ -11,6 +11,7 @@ EBTNodeResult::Type UBTT_EnemyHit::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		if(SelfPawn){
 			USkeletalMeshComponent* Mesh = SelfPawn->GetMesh();
 			if(Mesh){
+				/* Play the montage and wait */
 				Mesh->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &UBTT_EnemyHit::OnMontageCompleted);
 				SelfPawn->PlayAnimMontage(HitMontage, 1, TEXT("Hit"));
 			}
@@ -22,6 +23,7 @@ EBTNodeResult::Type UBTT_EnemyHit::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 }
 
 void UBTT_EnemyHit::OnMontageCompleted(UAnimMontage* Montage, bool bInterrupted){
+	/* Reset AI data */
 	if(BehaviorTreeComp && Montage == HitMontage){
 		AEnemyAIController* EnemyAIController = Cast<AEnemyAIController>(BehaviorTreeComp->GetAIOwner());
 		if(EnemyAIController){

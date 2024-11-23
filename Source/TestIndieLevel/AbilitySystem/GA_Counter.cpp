@@ -36,6 +36,9 @@ void UGA_Counter::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		AMainCharacter* Character = Cast<AMainCharacter>(ActorInfo->OwnerActor);
 		if(Character && CounterMontage){
 			if(CommitAbility(Handle, ActorInfo, ActivationInfo)){
+				/* If the data is correct, play the CounterMontage and wait until the montage ends to end the ability
+				 * it the montage it's interrupted then the counter was success
+				 */
 				UAbilityTask_PlayMontageAndWait* PlayMontageAndWait =
 					UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, EName::None, CounterMontage, 1, TEXT("Section4"));
 				if(PlayMontageAndWait){
@@ -59,6 +62,7 @@ void UGA_Counter::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 }
 
 void UGA_Counter::OnMontageCompleted(){
+	/* Stop defending and the ability */
 	if(CurrentActorInfo->OwnerActor.IsValid()){
 		AMainCharacter* Character = Cast<AMainCharacter>(CurrentActorInfo->OwnerActor);
 		if(Character){
@@ -69,6 +73,7 @@ void UGA_Counter::OnMontageCompleted(){
 }
 
 void UGA_Counter::OnMontageInterrupted(){
+	/* In a success counter wait until the counter process end receiving a gameplay event */
 	const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Event.SuccessCounter"));
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, EventTag);
 	if(WaitGameplayEvent){
@@ -78,6 +83,7 @@ void UGA_Counter::OnMontageInterrupted(){
 }
 
 void UGA_Counter::OnMontageCanceled(){
+	/* Stop defending and the ability */
 	if(CurrentActorInfo->OwnerActor.IsValid()){
 		AMainCharacter* Character = Cast<AMainCharacter>(CurrentActorInfo->OwnerActor);
 		if(Character){
@@ -89,6 +95,7 @@ void UGA_Counter::OnMontageCanceled(){
 }
 
 void UGA_Counter::OnEventReceived(FGameplayEventData Payload){
+	/* At the end of the counter process stop the defending and the ability */
 	if(Payload.EventTag == FGameplayTag::RequestGameplayTag(FName("Event.SuccessCounter"))){
 		if(CurrentActorInfo->OwnerActor.IsValid()){
 			AMainCharacter* Character = Cast<AMainCharacter>(CurrentActorInfo->OwnerActor);

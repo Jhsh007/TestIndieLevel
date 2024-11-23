@@ -15,6 +15,7 @@ void UGA_EnemyAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	if(CommitAbility(Handle, ActorInfo, ActivationInfo)){
+		/* Play the AttackMontage and wait to end ability  */
 		UAbilityTask_PlayMontageAndWait* PlayMontageAndWait =
 					UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, EName::None, AttackMontage);
 		if(PlayMontageAndWait){
@@ -30,6 +31,7 @@ void UGA_EnemyAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 }
 
 void UGA_EnemyAttack::OnMontageCompleted(){
+	/* Ends the ability and change de AI data to continue with the normal process(seek and attack the main character) */
 	if(CurrentActorInfo && CurrentActorInfo->OwnerActor.IsValid()){
 		ABaseEnemy* EnemyActor= Cast<ABaseEnemy>(CurrentActorInfo->OwnerActor);
 		if(EnemyActor){

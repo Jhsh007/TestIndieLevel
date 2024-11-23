@@ -41,6 +41,7 @@ void ABaseEnemy::BeginPlay(){
 	}
 }
 
+/* Set the ASC, add a startup ability and listen to the attribute health change */
 void ABaseEnemy::InitializeAbilitySystem(){
 	if(AbilitySystemComponent){
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
@@ -57,7 +58,8 @@ void ABaseEnemy::InitializeAbilitySystem(){
 
 void ABaseEnemy::PossessedBy(AController* NewController){
 	Super::PossessedBy(NewController);
-
+	
+	/* Run the AI */
 	EnemyAIController = Cast<AEnemyAIController>(NewController);
 	if(BehaviorTree){
 		EnemyAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
@@ -80,7 +82,7 @@ UAbilitySystemComponent* ABaseEnemy::GetAbilitySystemComponent() const{
 void ABaseEnemy::OnHealthChanged(const FOnAttributeChangeData& OnAttributeChangeData){
 	UTIL_AttributeSet* TIl_AttributeSet = Cast<UTIL_AttributeSet>(AttributeSet);
 	if(TIl_AttributeSet){
-		TIl_AttributeSet->OnHealthChanged.Broadcast(OnAttributeChangeData.NewValue, TIl_AttributeSet->GetMaxHealth());
+		TIl_AttributeSet->OnHealthChanged.Broadcast(OnAttributeChangeData.NewValue, TIl_AttributeSet->GetMaxHealth());//Inform about a health change
 	}
 }
 
@@ -94,17 +96,19 @@ void ABaseEnemy::ApplyAttack(){
 	FHitResult SphereHitResult;
 	UKismetSystemLibrary::SphereTraceSingleForObjects(this, HandLocation, HandLocation, 20.f, ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, SphereHitResult, true);
 
+	/* Make a sphere trace on the hand to check if hits the main character */
 	if(SphereHitResult.bBlockingHit){
 		AMainCharacter* HitActor = Cast<AMainCharacter>(SphereHitResult.GetActor());
 		if(HitActor){
 			UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 			if(ASC && DamageEffectClass){
 				if(EnemyAIController && EnemyAIController->GetBlackboardComponent()){
+					/* if theres is a hit but the character is defendig begins a counter */
 					if(HitActor->GetIsDefending()){
 						HitActor->BeginCounter();
 						EnemyAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), false);
 						EnemyAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("WasHitted"), true);
-					}else{
+					}else{// if not apply a damage effect
 						FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(DamageEffectClass, 1, ASC->MakeEffectContext());
 						ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 					}

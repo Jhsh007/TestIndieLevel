@@ -2,6 +2,7 @@
 #include "GameplayEffectExtension.h"
 #include "TIL_AbilitySystemComponent.h"
 
+/* Initial Attributes */
 UTIL_AttributeSet::UTIL_AttributeSet(){
 	InitHealth(500.f);
 	InitMaxHealth(500.f);
@@ -9,6 +10,7 @@ UTIL_AttributeSet::UTIL_AttributeSet(){
 	InitMaxStamina(100.f);
 }
 
+/* Clamps the attributes */
 void UTIL_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue){
 	Super::PreAttributeChange(Attribute, NewValue);
 
@@ -36,7 +38,7 @@ void UTIL_AttributeSet::SetHealth(float NewHealth){
 	if(ensure(AbilityComp)){
 		NewHealth = FMath::Clamp(NewHealth, 0, GetMaxHealth());
 		AbilityComp->SetNumericAttributeBase(GetHealthAttribute(), NewHealth);
-		OnHealthChanged.Broadcast(NewHealth, GetMaxHealth());
+		OnHealthChanged.Broadcast(NewHealth, GetMaxHealth());//Inform health change
 	};
 }
 
@@ -47,6 +49,6 @@ void UTIL_AttributeSet::SetStamina(float NewStamina){
 		NewStamina = FMath::Clamp(NewStamina, 0, GetMaxStamina());
 		AbilityComp->SetNumericAttributeBase(GetStaminaAttribute(), NewStamina);
 		UE_LOG(LogTemp, Warning, TEXT("Ability NewStamina Broadcasted: %f"), NewStamina);
-		OnStaminaChanged.Broadcast(NewStamina, GetMaxStamina());
+		OnStaminaChanged.Broadcast(NewStamina, GetMaxStamina());//Inform health change
 	};
 }

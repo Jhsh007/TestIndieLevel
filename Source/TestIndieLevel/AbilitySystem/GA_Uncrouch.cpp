@@ -2,8 +2,8 @@
 
 UGA_Uncrouch::UGA_Uncrouch(){
 	const FGameplayTag UncrouchTag = FGameplayTag::RequestGameplayTag(FName("Ability.Uncrouch"));
-	const FGameplayTag JumpTag = FGameplayTag::RequestGameplayTag(FName("Ability.Attack"));
-	const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Jump"));
+	const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Attack"));
+	const FGameplayTag JumpTag = FGameplayTag::RequestGameplayTag(FName("Ability.Jump"));
 	const FGameplayTag DoubleJumpTag = FGameplayTag::RequestGameplayTag(FName("Ability.DoubleJump"));
 	const FGameplayTag CrouchTag = FGameplayTag::RequestGameplayTag(FName("Ability.Crouch"));
 	const FGameplayTag DashTag = FGameplayTag::RequestGameplayTag(FName("Ability.Dash"));
@@ -24,6 +24,7 @@ void UGA_Uncrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	if(CommitAbility(Handle, ActorInfo, ActivationInfo)){
+		/* uncrouch just cancel the crouch ability */
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 	}
 }

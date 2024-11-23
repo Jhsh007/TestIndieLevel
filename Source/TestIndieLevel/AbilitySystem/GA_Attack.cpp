@@ -33,6 +33,7 @@ void UGA_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 		AMainCharacter* Character = Cast<AMainCharacter>(ActorInfo->OwnerActor);
 		if(Character && AttackMontage){
 			if(CommitAbility(Handle, ActorInfo, ActivationInfo)){
+				/* If the data is correct, play the AttackMontage and wait until the montage ends to end the ability  */
 				UAbilityTask_PlayMontageAndWait* PlayMontageAndWait =
 					UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, EName::None, AttackMontage);
 				if(PlayMontageAndWait){

@@ -22,6 +22,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	/* Play the hit montage */
 	void ApplyHit(ACharacter* Char, AEnemyAIController* Controller);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
